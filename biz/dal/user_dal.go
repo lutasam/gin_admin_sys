@@ -34,3 +34,11 @@ func (ins *UserDal) GetUserByUsername(c *gin.Context, username string) (*model.U
 	user.Password = "admin"
 	return user, nil
 }
+
+func (ins *UserDal) CreateUser(c *gin.Context, user *model.User) error {
+	//err := repository.GetDB().WithContext(c).Create(user).Error
+	//if err != nil {
+	//	return common.DATABASEERROR
+	//}
+	return nil
+}

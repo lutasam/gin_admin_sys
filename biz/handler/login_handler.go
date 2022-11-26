@@ -46,5 +46,21 @@ func (ins *LoginController) DoLogin(c *gin.Context) {
 }
 
 func (ins *LoginController) DoRegister(c *gin.Context) {
-
+	req := &bo.RegisterRequest{}
+	err := c.ShouldBind(req)
+	if err != nil {
+		utils.ResponseClientError(c, common.USERINPUTERROR)
+		return
+	}
+	resp, err := service.GetLoginService().DoRegister(c, req)
+	if err != nil {
+		if errors.Is(err, common.USERINPUTERROR) {
+			utils.ResponseClientError(c, common.USERINPUTERROR)
+			return
+		} else {
+			utils.ResponseServerError(c, common.UNKNOWNERROR)
+			return
+		}
+	}
+	utils.ResponseSuccess(c, resp)
 }

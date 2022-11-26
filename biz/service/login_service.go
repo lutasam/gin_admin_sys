@@ -5,6 +5,7 @@ import (
 	"github.com/lutasam/gin_admin_sys/biz/bo"
 	"github.com/lutasam/gin_admin_sys/biz/common"
 	"github.com/lutasam/gin_admin_sys/biz/dal"
+	"github.com/lutasam/gin_admin_sys/biz/model"
 	"github.com/lutasam/gin_admin_sys/biz/utils"
 	"sync"
 )
@@ -43,4 +44,36 @@ func (ins *LoginService) DoLogin(c *gin.Context, req *bo.LoginRequest) (*bo.Logi
 		Username: user.Username,
 		Token:    jwt,
 	}, nil
+}
+
+func (ins *LoginService) DoRegister(c *gin.Context, req *bo.RegisterRequest) (*bo.RegisterResponse, error) {
+	if req.Username == "" || req.Password == "" || req.Avatar != "" && !utils.IsValidURL(req.Avatar) {
+		return nil, common.USERINPUTERROR
+	}
+	encryptPass, err := utils.AesEncrypt(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	user := &model.User{
+		ID:       utils.GenerateUserID(),
+		Username: req.Username,
+		Password: encryptPass,
+		NickName: req.Nickname,
+		Avatar:   req.Avatar,
+		Sign:     req.Sign,
+	}
+	if req.Nickname == "" {
+		user.NickName = common.DEFAULTNICKNAME
+	}
+	if req.Avatar == "" {
+		user.Avatar = common.DEFAULTAVATARURL
+	}
+	if req.Sign == "" {
+		user.Sign = common.DEFAULTSIGN
+	}
+	err = dal.GetUserDal().CreateUser(c, user)
+	if err != nil {
+		return nil, err
+	}
+	return &bo.RegisterResponse{}, nil
 }

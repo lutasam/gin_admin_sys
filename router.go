@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lutasam/GIN_LUTA/biz/handler"
+	"github.com/lutasam/gin_admin_sys/biz/handler"
 	"io"
 	"os"
 )
@@ -23,4 +23,9 @@ func InitRouterAndMiddleware(r *gin.Engine) {
 	// /demo
 	demo := r.Group("/demo")
 	handler.RegisterDemoRouter(demo)
+
+	// 登录板块
+	// login
+	login := r.Group("/login")
+	handler.RegisterLoginRouter(login)
 }

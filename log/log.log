@@ -1,5 +1,14 @@
-[GIN-debug] GET    /demo/ping                --> lutasam/GIN_LUTA/biz/handler.(*DemoController).Ping-fm (3 handlers)
-[GIN-debug] POST   /demo/hello               --> lutasam/GIN_LUTA/biz/handler.(*DemoController).Hello-fm (3 handlers)
-[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
-Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
-[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2022/11/26 - 11:22:29 | 200 |       4.147ms |             ::1 | POST     "/login/do_login"
+[GIN] 2022/11/26 - 11:36:04 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:36:10 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:36:21 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:36:46 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:37:15 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:37:16 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:37:24 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:37:31 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:37:36 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:38:00 | 404 |            0s |       127.0.0.1 | POST     "/api/login/do_login"
+[GIN] 2022/11/26 - 11:38:45 | 200 |      1.7744ms |       127.0.0.1 | POST     "/login/do_login"
+[GIN] 2022/11/26 - 11:38:59 | 200 |       572.5µs |       127.0.0.1 | POST     "/login/do_login"
+[GIN] 2022/11/26 - 11:41:17 | 404 |            0s |       127.0.0.1 | GET      "/login/do_login"

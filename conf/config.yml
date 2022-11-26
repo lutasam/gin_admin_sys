@@ -16,6 +16,3 @@ redis:
 # log config
 log:
   filepath: log/log.log
-
-
-123

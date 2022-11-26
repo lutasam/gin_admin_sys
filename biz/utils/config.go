@@ -18,7 +18,7 @@ var (
 	ResolveOnce sync.Once
 )
 
-func GetConfigResolve() *ConfigResolve {
+func getConfigResolve() *ConfigResolve {
 	ResolveOnce.Do(func() {
 		Resolve = &ConfigResolve{
 			Viper: viper.New(),
@@ -38,14 +38,14 @@ func GetConfigResolve() *ConfigResolve {
 	return Resolve
 }
 
-func (ins *ConfigResolve) GetConfigString(target string) string {
-	return Resolve.Viper.GetString(target)
+func GetConfigString(target string) string {
+	return getConfigResolve().Viper.GetString(target)
 }
 
-func (ins *ConfigResolve) GetConfigIntSlice(target string) []int {
-	return Resolve.Viper.GetIntSlice(target)
+func GetConfigIntSlice(target string) []int {
+	return getConfigResolve().Viper.GetIntSlice(target)
 }
 
-func (ins *ConfigResolve) GetConfigStringSlice(target string) []string {
-	return Resolve.Viper.GetStringSlice(target)
+func GetConfigStringSlice(target string) []string {
+	return getConfigResolve().Viper.GetStringSlice(target)
 }

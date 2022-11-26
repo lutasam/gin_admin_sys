@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/lutasam/gin_admin_sys/biz/bo"
 	"github.com/lutasam/gin_admin_sys/biz/common"
@@ -32,10 +33,10 @@ func (ins *LoginService) DoLogin(c *gin.Context, req *bo.LoginRequest) (*bo.Logi
 	if err != nil {
 		return nil, err
 	}
-	//err = utils.ValidatePassword(user.Password, req.Password)
-	//if err != nil {
-	//	return nil, err
-	//}
+	err = utils.ValidatePassword(user.Password, req.Password)
+	if err != nil {
+		return nil, err
+	}
 	jwt, err := utils.GenerateJWTByUserInfo(user)
 	if err != nil {
 		return nil, err
@@ -50,11 +51,18 @@ func (ins *LoginService) DoRegister(c *gin.Context, req *bo.RegisterRequest) (*b
 	if req.Username == "" || req.Password == "" || req.Avatar != "" && !utils.IsValidURL(req.Avatar) {
 		return nil, common.USERINPUTERROR
 	}
-	encryptPass, err := utils.AesEncrypt(req.Password)
+	user, err := dal.GetUserDal().GetUserByUsername(c, req.Username)
+	if err != nil && errors.Is(err, common.DATABASEERROR) {
+		return nil, err
+	}
+	if err == nil { // username is duplicate with other guys
+		return nil, common.USEREXISTED
+	}
+	encryptPass, err := utils.EncryptPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
-	user := &model.User{
+	user = &model.User{
 		ID:       utils.GenerateUserID(),
 		Username: req.Username,
 		Password: encryptPass,

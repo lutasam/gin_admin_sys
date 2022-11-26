@@ -1,1 +1,22 @@
 package repository
+
+import (
+	"github.com/go-redis/redis"
+	"github.com/lutasam/gin_admin_sys/biz/utils"
+)
+
+var redisDB *redis.Client
+
+func init() {
+	redisDB = redis.NewClient(&redis.Options{
+		Addr: utils.GetConfigString("redis.address"),
+	})
+	_, err := redisDB.Ping().Result()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func GetRedis() *redis.Client {
+	return redisDB
+}

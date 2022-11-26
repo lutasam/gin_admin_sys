@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/lutasam/gin_admin_sys/biz/bo"
 	"github.com/lutasam/gin_admin_sys/biz/common"
@@ -28,17 +27,11 @@ func (ins *LoginController) DoLogin(c *gin.Context) {
 	}
 	resp, err := service.GetLoginService().DoLogin(c, req)
 	if err != nil {
-		if errors.Is(err, common.USERDOESNOTEXIST) {
-			utils.ResponseClientError(c, common.USERDOESNOTEXIST)
-			return
-		} else if errors.Is(err, common.PASSWORDISERROR) {
-			utils.ResponseClientError(c, common.PASSWORDISERROR)
-			return
-		} else if errors.Is(err, common.USERINPUTERROR) {
-			utils.ResponseClientError(c, common.USERINPUTERROR)
+		if utils.IsIncludedByErrors(err, common.USERDOESNOTEXIST, common.PASSWORDISERROR, common.USERINPUTERROR, common.UNKNOWNERROR) {
+			utils.ResponseClientError(c, err.(common.Error))
 			return
 		} else {
-			utils.ResponseServerError(c, common.UNKNOWNERROR)
+			utils.ResponseServerError(c, err.(common.Error))
 			return
 		}
 	}
@@ -54,11 +47,11 @@ func (ins *LoginController) DoRegister(c *gin.Context) {
 	}
 	resp, err := service.GetLoginService().DoRegister(c, req)
 	if err != nil {
-		if errors.Is(err, common.USERINPUTERROR) {
-			utils.ResponseClientError(c, common.USERINPUTERROR)
+		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USEREXISTED) {
+			utils.ResponseClientError(c, err.(common.Error))
 			return
 		} else {
-			utils.ResponseServerError(c, common.UNKNOWNERROR)
+			utils.ResponseServerError(c, err.(common.Error))
 			return
 		}
 	}

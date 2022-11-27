@@ -25,7 +25,7 @@ func GenerateJWTByUserInfo(user *model.User) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = JWTStruct{
 		UserID:  user.ID,
-		Account: user.Username,
+		Account: user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: timeNow + common.EXPIRETIME,
 			Issuer:    common.ISSUER,

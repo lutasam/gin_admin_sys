@@ -75,4 +75,12 @@ var (
 		ErrorCode:   100014,
 		ErrorString: "server redis db error, please try later",
 	}
+	USERNOTACTIVE = Error{
+		ErrorCode:   100015,
+		ErrorString: "you do not active your email, please active your account to do something next",
+	}
+	ACTIVECODEERROR = Error{
+		ErrorCode:   100016,
+		ErrorString: "active code is not correct, please check",
+	}
 )

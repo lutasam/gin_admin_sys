@@ -16,4 +16,5 @@
 # vendor/
 
 /conf/
+/idea/
 *.yml

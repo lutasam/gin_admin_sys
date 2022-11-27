@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lutasam/gin_admin_sys/biz/handler"
+	"github.com/lutasam/gin_admin_sys/biz/middleware"
 	"io"
 	"os"
 )
@@ -24,8 +25,12 @@ func InitRouterAndMiddleware(r *gin.Engine) {
 	demo := r.Group("/demo")
 	handler.RegisterDemoRouter(demo)
 
-	// 登录板块
+	// 登录模块
 	// login
 	login := r.Group("/login")
 	handler.RegisterLoginRouter(login)
+
+	// 商品模块
+	commodity := r.Group("/commodity", middleware.JWTAuth())
+	handler.RegisterCommodityRouter(commodity)
 }

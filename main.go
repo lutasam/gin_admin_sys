@@ -12,7 +12,7 @@ func main() {
 
 	InitRouterAndMiddleware(r)
 
-	err := r.Run(":" + utils.GetConfigResolve().GetConfigString("server.port"))
+	err := r.Run(":" + utils.GetConfigString("server.port"))
 	if err != nil {
 		panic(err)
 	}

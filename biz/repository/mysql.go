@@ -13,18 +13,18 @@ var DB *gorm.DB
 func init() {
 	var err error
 	DB, err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?%s",
-		utils.GetConfigResolve().GetConfigString("mysql.user"),
-		utils.GetConfigResolve().GetConfigString("mysql.password"),
-		utils.GetConfigResolve().GetConfigString("mysql.address"),
-		utils.GetConfigResolve().GetConfigString("mysql.port"),
-		utils.GetConfigResolve().GetConfigString("mysql.dbname"),
-		utils.GetConfigResolve().GetConfigString("mysql.config"))), &gorm.Config{
+		utils.GetConfigString("mysql.user"),
+		utils.GetConfigString("mysql.password"),
+		utils.GetConfigString("mysql.address"),
+		utils.GetConfigString("mysql.port"),
+		utils.GetConfigString("mysql.dbname"),
+		utils.GetConfigString("mysql.config"))), &gorm.Config{
 		PrepareStmt: true,
 	})
 	if err != nil {
 		panic(err)
 	}
-	err = DB.AutoMigrate(model.User{})
+	err = DB.AutoMigrate(model.User{}, model.Commodity{})
 	if err != nil {
 		panic(err)
 	}

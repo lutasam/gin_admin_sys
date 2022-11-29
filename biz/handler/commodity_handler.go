@@ -16,7 +16,7 @@ func RegisterCommodityRouter(r *gin.RouterGroup) {
 		r.POST("/add_commodity", commodityController.AddCommodity)
 		r.POST("/update_commodity", commodityController.UpdateCommodity)
 		r.POST("/delete_commodity", commodityController.DeleteCommodity)
-		r.GET("/find_all_commodities", commodityController.FindAllCommodities)
+		r.GET("/find_commodities", commodityController.FindCommodities)
 	}
 }
 
@@ -80,14 +80,19 @@ func (ins *CommodityController) DeleteCommodity(c *gin.Context) {
 	utils.ResponseSuccess(c, resp)
 }
 
-func (ins *CommodityController) FindAllCommodities(c *gin.Context) {
-	req := &bo.FindAllCommoditiesRequest{}
-	err := c.ShouldBind(req)
+func (ins *CommodityController) FindCommodities(c *gin.Context) {
+	currentPage, err := utils.StringToInt(c.Query("current_page"))
+	pageSize, err := utils.StringToInt(c.Query("page_size"))
 	if err != nil {
 		utils.ResponseClientError(c, common.USERINPUTERROR)
 		return
 	}
-	resp, err := service.GetCommodityService().FindAllCommodities(c, req)
+	req := &bo.FindCommoditiesRequest{
+		CurrentPage: currentPage,
+		PageSize:    pageSize,
+		SearchName:  c.Query("search_name"),
+	}
+	resp, err := service.GetCommodityService().FindCommodities(c, req)
 	if err != nil {
 		utils.ResponseServerError(c, err.(common.Error))
 		return

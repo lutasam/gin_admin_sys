@@ -7,9 +7,14 @@ func Uint64ToString(i uint64) string {
 }
 
 func StringToUint64(s string) (uint64, error) {
-	i, err := strconv.ParseUint(s, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-	return i, nil
+	return strconv.ParseUint(s, 10, 64)
+}
+
+func StringToFloat32(s string) (float32, error) {
+	temp, err := strconv.ParseFloat(s, 32)
+	return float32(temp), err
+}
+
+func StringToInt(s string) (int, error) {
+	return strconv.Atoi(s)
 }

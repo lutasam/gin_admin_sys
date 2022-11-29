@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/lutasam/gin_admin_sys/biz/bo"
 	"github.com/lutasam/gin_admin_sys/biz/common"
@@ -29,12 +30,9 @@ func (ins *LoginService) DoLogin(c *gin.Context, req *bo.LoginRequest) (*bo.Logi
 	if !utils.IsValidEmail(req.Email) || req.Password == "" {
 		return nil, common.USERINPUTERROR
 	}
-	user, err := dal.GetUserDal().FindUserByEmail(c, req.Email)
+	user, err := dal.GetUserDal().TakeUserByEmail(c, req.Email)
 	if err != nil {
 		return nil, err
-	}
-	if user.IsActive == false {
-		return nil, common.USERNOTACTIVE
 	}
 	err = utils.ValidatePassword(user.Password, req.Password)
 	if err != nil {
@@ -50,29 +48,48 @@ func (ins *LoginService) DoLogin(c *gin.Context, req *bo.LoginRequest) (*bo.Logi
 	}, nil
 }
 
-func (ins *LoginService) DoRegister(c *gin.Context, req *bo.RegisterRequest) (*bo.RegisterResponse, error) {
-	if !utils.IsValidEmail(req.Email) || req.Password == "" || req.Avatar != "" && !utils.IsValidURL(req.Avatar) {
+func (ins *LoginService) ApplyRegister(c *gin.Context, req *bo.ApplyRegisterRequest) (*bo.ApplyRegisterResponse, error) {
+	if !utils.IsValidEmail(req.Email) {
 		return nil, common.USERINPUTERROR
 	}
-	user, err := dal.GetUserDal().FindUserByEmail(c, req.Email)
+	_, err := dal.GetUserDal().TakeUserByEmail(c, req.Email)
 	if err != nil && errors.Is(err, common.DATABASEERROR) {
 		return nil, err
 	}
 	if err == nil { // username is duplicate with other guys
 		return nil, common.USEREXISTED
 	}
+	go func() {
+		err := sendActiveUserEmail(c, req.Email)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	return &bo.ApplyRegisterResponse{}, nil
+}
+
+func (ins *LoginService) ActiveUser(c *gin.Context, req *bo.ActiveUserRequest) (*bo.ActiveUserResponse, error) {
+	if !utils.IsValidEmail(req.Email) || req.Password == "" || req.Avatar != "" && !utils.IsValidURL(req.Avatar) {
+		return nil, common.USERINPUTERROR
+	}
+	code, err := dal.GetActiveDal().GetActiveCodeIfExist(c, req.Email)
+	if err != nil {
+		return nil, err
+	}
+	if code != req.ActiveCode {
+		return nil, common.ACTIVECODEERROR
+	}
 	encryptPass, err := utils.EncryptPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
-	user = &model.User{
+	user := &model.User{
 		ID:       utils.GenerateUserID(),
 		Email:    req.Email,
 		Password: encryptPass,
 		NickName: req.Nickname,
 		Avatar:   req.Avatar,
 		Sign:     req.Sign,
-		IsActive: false,
 	}
 	if req.Nickname == "" {
 		user.NickName = common.DEFAULTNICKNAME
@@ -87,17 +104,28 @@ func (ins *LoginService) DoRegister(c *gin.Context, req *bo.RegisterRequest) (*b
 	if err != nil {
 		return nil, err
 	}
+	return &bo.ActiveUserResponse{}, nil
+}
+
+func (ins *LoginService) ResetPassword(c *gin.Context, req *bo.ResetPasswordRequest) (*bo.ResetPasswordResponse, error) {
+	if !utils.IsValidEmail(req.Email) {
+		return nil, common.USERINPUTERROR
+	}
+	_, err := dal.GetUserDal().TakeUserByEmail(c, req.Email)
+	if err != nil {
+		return nil, err
+	}
 	go func() {
-		err := sendActiveEmail(c, user.Email)
+		err := sendActiveUserEmail(c, req.Email)
 		if err != nil {
 			panic(err)
 		}
 	}()
-	return &bo.RegisterResponse{}, nil
+	return &bo.ResetPasswordResponse{}, nil
 }
 
-func (ins *LoginService) ActiveAccount(c *gin.Context, req *bo.ActiveRequest) (*bo.ActiveResponse, error) {
-	if !utils.IsValidEmail(req.Email) {
+func (ins *LoginService) ActiveResetPassword(c *gin.Context, req *bo.ActiveResetPasswordRequest) (*bo.ActiveResetPasswordResponse, error) {
+	if !utils.IsValidEmail(req.Email) || req.Password == "" {
 		return nil, common.USERINPUTERROR
 	}
 	code, err := dal.GetActiveDal().GetActiveCodeIfExist(c, req.Email)
@@ -107,22 +135,34 @@ func (ins *LoginService) ActiveAccount(c *gin.Context, req *bo.ActiveRequest) (*
 	if code != req.ActiveCode {
 		return nil, common.ACTIVECODEERROR
 	}
-	err = dal.GetUserDal().ActiveUser(c, req.Email)
+	user, err := dal.GetUserDal().TakeUserByEmail(c, req.Email)
 	if err != nil {
 		return nil, err
 	}
-	return &bo.ActiveResponse{}, nil
+	encryptPass, err := utils.EncryptPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = encryptPass
+	err = dal.GetUserDal().UpdateUser(c, user)
+	if err != nil {
+		return nil, err
+	}
+	return &bo.ActiveResetPasswordResponse{}, nil
 }
 
-func sendActiveEmail(c *gin.Context, email string) error {
+func sendActiveUserEmail(c *gin.Context, email string) error {
 	activeCode := utils.GenerateActiveCode()
 	err := dal.GetActiveDal().SetActiveCode(c, email, activeCode)
 	if err != nil {
 		return err
 	}
 	subject := "[验证激活码]某某后台管理系统"
-	body := "验证码：" + activeCode + "\n5分钟之内有效。"
-	err = utils.SendMail(email, subject, body)
+	body := `
+验证码：%s。5分钟之内有效。<br>
+如果不是您本人操作，请忽视该邮件。
+`
+	err = utils.SendMail(email, subject, fmt.Sprintf(body, activeCode))
 	if err != nil {
 		return err
 	}

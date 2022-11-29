@@ -83,4 +83,16 @@ var (
 		ErrorCode:   100016,
 		ErrorString: "active code is not correct, please check",
 	}
+	IMGFORMATERROR = Error{
+		ErrorCode:   100017,
+		ErrorString: "we only support jpg/jpeg/png image, please upload correct image",
+	}
+	IMGTOOLARGEERROR = Error{
+		ErrorCode:   100018,
+		ErrorString: "this image is too big, please upload less smaller image",
+	}
+	FILEUPLOADERROR = Error{
+		ErrorCode:   100019,
+		ErrorString: "file upload fail, maybe it's server error, please wait",
+	}
 )

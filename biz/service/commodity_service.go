@@ -49,19 +49,14 @@ func (ins *CommodityService) UpdateCommodity(c *gin.Context, req *bo.UpdateCommo
 	if err != nil {
 		return nil, common.USERINPUTERROR
 	}
-	exist, err := isCommodityExist(c, id)
+	commodity, err := dal.GetCommodityDal().TakeCommodityByID(c, id)
 	if err != nil {
 		return nil, err
 	}
-	if !exist {
-		return nil, common.USERINPUTERROR
-	}
-	err = dal.GetCommodityDal().UpdateCommodity(c, &model.Commodity{
-		ID:    id,
-		Name:  req.Name,
-		Price: req.Price,
-		Count: req.Count,
-	})
+	commodity.Name = req.Name
+	commodity.Price = req.Price
+	commodity.Count = req.Count
+	err = dal.GetCommodityDal().UpdateCommodity(c, commodity)
 	if err != nil {
 		return nil, err
 	}
@@ -90,24 +85,19 @@ func (ins *CommodityService) DeleteCommodity(c *gin.Context, req *bo.DeleteCommo
 	return &bo.DeleteCommodityResponse{}, nil
 }
 
-func (ins *CommodityService) FindAllCommodities(c *gin.Context, req *bo.FindAllCommoditiesRequest) (*bo.FindAllCommoditiesResponse, error) {
-	commodities, err := dal.GetCommodityDal().FindAllCommodity(c)
+func (ins *CommodityService) FindCommodities(c *gin.Context, req *bo.FindCommoditiesRequest) (*bo.FindCommoditiesResponse, error) {
+	if req.CurrentPage <= 0 || req.PageSize <= 0 {
+		return nil, common.USERINPUTERROR
+	}
+	commodities, err := dal.GetCommodityDal().FindCommodity(c, req.CurrentPage, req.PageSize, req.SearchName)
 	if err != nil {
 		return nil, err
 	}
 	commodityVOs := convertToCommodityVOs(commodities)
-	return &bo.FindAllCommoditiesResponse{
+	return &bo.FindCommoditiesResponse{
 		Total:        len(commodityVOs),
 		CommodityVOs: commodityVOs,
 	}, nil
-}
-
-func isCommodityExist(c *gin.Context, id uint64) (bool, error) {
-	commodity, err := dal.GetCommodityDal().FindCommodityByID(c, id)
-	if err != nil || commodity.ID != 0 {
-		return true, err
-	}
-	return false, nil
 }
 
 func convertToCommodityVOs(commodities []*model.Commodity) []*vo.CommodityVO {

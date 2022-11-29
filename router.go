@@ -20,6 +20,9 @@ func InitRouterAndMiddleware(r *gin.Engine) {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+	// 限制传输文件 最大32MB
+	r.MaxMultipartMemory = 32 << 20
+
 	// 注册分组路由
 	// /demo
 	demo := r.Group("/demo")
@@ -30,7 +33,15 @@ func InitRouterAndMiddleware(r *gin.Engine) {
 	login := r.Group("/login")
 	handler.RegisterLoginRouter(login)
 
+	// 用户模块
+	user := r.Group("/user")
+	handler.RegisterUserRouter(user)
+
 	// 商品模块
 	commodity := r.Group("/commodity", middleware.JWTAuth())
 	handler.RegisterCommodityRouter(commodity)
+
+	// 文件模块
+	file := r.Group("/file", middleware.JWTAuth())
+	handler.RegisterFileRouter(file)
 }

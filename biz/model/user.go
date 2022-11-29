@@ -13,7 +13,6 @@ type User struct {
 	NickName  string         `gorm:"column:nickname"`
 	Avatar    string         `gorm:"column:avatar"`
 	Sign      string         `gorm:"column:sign"`
-	IsActive  bool           `gorm:"column:is_active"`
 	CreatedAt time.Time      `gorm:"column:created_at"`
 	UpdatedAt time.Time      `gorm:"column:updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at"`

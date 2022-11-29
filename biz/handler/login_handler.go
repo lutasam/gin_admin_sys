@@ -14,8 +14,10 @@ func RegisterLoginRouter(r *gin.RouterGroup) {
 	loginController := &LoginController{}
 	{
 		r.POST("/do_login", loginController.DoLogin)
-		r.POST("/do_register", loginController.DoRegister)
+		r.POST("/apply_register", loginController.ApplyRegister)
 		r.POST("/active_user", loginController.ActiveUser)
+		r.POST("/reset_password", loginController.ResetPassword)
+		r.POST("/active_reset_password", loginController.ActiveResetPassword)
 	}
 }
 
@@ -39,14 +41,14 @@ func (ins *LoginController) DoLogin(c *gin.Context) {
 	utils.ResponseSuccess(c, resp)
 }
 
-func (ins *LoginController) DoRegister(c *gin.Context) {
-	req := &bo.RegisterRequest{}
+func (ins *LoginController) ApplyRegister(c *gin.Context) {
+	req := &bo.ApplyRegisterRequest{}
 	err := c.ShouldBind(req)
 	if err != nil {
 		utils.ResponseClientError(c, common.USERINPUTERROR)
 		return
 	}
-	resp, err := service.GetLoginService().DoRegister(c, req)
+	resp, err := service.GetLoginService().ApplyRegister(c, req)
 	if err != nil {
 		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USEREXISTED) {
 			utils.ResponseClientError(c, err.(common.Error))
@@ -60,14 +62,53 @@ func (ins *LoginController) DoRegister(c *gin.Context) {
 }
 
 func (ins *LoginController) ActiveUser(c *gin.Context) {
-	req := &bo.ActiveRequest{}
+	req := &bo.ActiveUserRequest{}
 	err := c.ShouldBind(req)
 	if err != nil {
 		utils.ResponseClientError(c, common.USERINPUTERROR)
 	}
-	resp, err := service.GetLoginService().ActiveAccount(c, req)
+	resp, err := service.GetLoginService().ActiveUser(c, req)
 	if err != nil {
-		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USERDOESNOTEXIST, common.ACTIVECODEERROR) {
+		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USEREXISTED, common.USERDOESNOTEXIST, common.ACTIVECODEERROR) {
+			utils.ResponseClientError(c, err.(common.Error))
+			return
+		} else {
+			utils.ResponseServerError(c, err.(common.Error))
+			return
+		}
+	}
+	utils.ResponseSuccess(c, resp)
+}
+
+func (ins *LoginController) ResetPassword(c *gin.Context) {
+	req := &bo.ResetPasswordRequest{}
+	err := c.ShouldBind(req)
+	if err != nil {
+		utils.ResponseClientError(c, common.USERINPUTERROR)
+		return
+	}
+	resp, err := service.GetLoginService().ResetPassword(c, req)
+	if err != nil {
+		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USEREXISTED) {
+			utils.ResponseClientError(c, err.(common.Error))
+			return
+		} else {
+			utils.ResponseServerError(c, err.(common.Error))
+			return
+		}
+	}
+	utils.ResponseSuccess(c, resp)
+}
+
+func (ins *LoginController) ActiveResetPassword(c *gin.Context) {
+	req := &bo.ActiveResetPasswordRequest{}
+	err := c.ShouldBind(req)
+	if err != nil {
+		utils.ResponseClientError(c, common.USERINPUTERROR)
+	}
+	resp, err := service.GetLoginService().ActiveResetPassword(c, req)
+	if err != nil {
+		if utils.IsIncludedByErrors(err, common.USERINPUTERROR, common.USEREXISTED, common.USERDOESNOTEXIST, common.ACTIVECODEERROR) {
 			utils.ResponseClientError(c, err.(common.Error))
 			return
 		} else {

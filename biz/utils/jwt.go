@@ -11,7 +11,7 @@ import (
 
 type JWTStruct struct {
 	UserID         uint64 `json:"user_id"`
-	Account        string `json:"account"`
+	Email          string `json:"email"`
 	StandardClaims jwt.StandardClaims
 }
 
@@ -24,8 +24,8 @@ func GenerateJWTByUserInfo(user *model.User) (string, error) {
 	timeNow := time.Now().Unix()
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = JWTStruct{
-		UserID:  user.ID,
-		Account: user.Email,
+		UserID: user.ID,
+		Email:  user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: timeNow + common.EXPIRETIME,
 			Issuer:    common.ISSUER,

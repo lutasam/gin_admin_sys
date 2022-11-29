@@ -11,6 +11,7 @@ const ACTIVECODESUFFIX = "_active_code"
 const DEFAULTAVATARURL = "http://baidu.com/test.png"
 const DEFAULTSIGN = "This man doesn't say anything."
 const DEFAULTNICKNAME = "SHAREUSER"
+const MAXIMGSPACE = 1024 * 1024 * 1 // img upload should be less than 1 MB
 
 const (
 	STATUSOKCODE    = 200

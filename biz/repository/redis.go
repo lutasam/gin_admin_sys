@@ -9,7 +9,8 @@ var redisDB *redis.Client
 
 func init() {
 	redisDB = redis.NewClient(&redis.Options{
-		Addr: utils.GetConfigString("redis.address"),
+		Addr:     utils.GetConfigString("redis.address"),
+		Password: utils.GetConfigString("redis.password"),
 	})
 	_, err := redisDB.Ping().Result()
 	if err != nil {

@@ -5,6 +5,7 @@ import "github.com/bwmarrin/snowflake"
 var (
 	userIDGenerator      *snowflake.Node
 	commodityIDGenerator *snowflake.Node
+	fileIDGenerator      *snowflake.Node
 )
 
 func init() {
@@ -18,6 +19,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	fileIDGenerator, err = snowflake.NewNode(300)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GenerateUserID() uint64 {
@@ -25,5 +31,9 @@ func GenerateUserID() uint64 {
 }
 
 func GenerateCommodityID() uint64 {
+	return uint64(commodityIDGenerator.Generate().Int64())
+}
+
+func GenerateFileID() uint64 {
 	return uint64(commodityIDGenerator.Generate().Int64())
 }
